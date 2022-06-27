@@ -20,7 +20,7 @@ def get_fruit_load_list(sf_cnxn):
 def insert_row_snowflake(sf_cnxn, new_fruit):
   with sf_cnxn.cursor() as my_cur:
     # Insert user's entry into Snowflake Table
-    my_cur.execute("INSERT INTO fruit_load_list VALUES ('from streamlit')")
+    my_cur.execute(f"INSERT INTO fruit_load_list VALUES ('{new_fruit}')")
     return f'Thanks for adding {new_fruit}'
 
 
@@ -70,7 +70,7 @@ my_data_rows = get_fruit_load_list(my_cnx)
 streamlit.dataframe(my_data_rows)
 
 # Allow the end user to add a fruit to the list
-add_my_fruit = streamlit.text_input('What fruit would you like to add?', 'jackfruit').lower() # Lower user input for API
+add_my_fruit = streamlit.text_input('What fruit would you like to add?').lower() # Lower user input for API
 if streamlit.button('Add a Fruit to the List'):
   back_from_function = insert_row_snowflake(my_cnx, add_my_fruit)
   streamlit.text(back_from_function)

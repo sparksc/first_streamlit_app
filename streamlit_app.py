@@ -30,16 +30,21 @@ streamlit.dataframe(fruits_to_show)
 
 streamlit.header('Fruityvice Fruit Advice!')
 
-# Get Fruityvice API Data
-fruit_choice = streamlit.text_input('What fruit would you like information about?', 'Kiwi')
-streamlit.write('The user entered', fruit_choice)
-fruityvice_response = requests.get(f"https://fruityvice.com/api/fruit/{fruit_choice}")
+try:
+  # Get Fruityvice API Data
+  fruit_choice = streamlit.text_input('What fruit would you like information about?', 'Kiwi')
+  if not fruit_choice:
+    streamlit.error("Please select a fruit to get information.")
+   else:
+    # streamlit.write('The user entered', fruit_choice)
+    fruityvice_response = requests.get(f"https://fruityvice.com/api/fruit/{fruit_choice}")
+    fruityvice_normalized = pd.json_normalize(fruityvice_response.json())
+    streamlit.dataframe(fruityvice_normalized)
+    #streamlit.text(fruityvice_response.json())  # display the raw JSON response
 
-#streamlit.text(fruityvice_response.json())  # display the raw JSON response
+except URLError as e:
+  streamlit.error()
 
-# Format the JSON response and display
-fruityvice_normalized = pd.json_normalize(fruityvice_response.json())
-streamlit.dataframe(fruityvice_normalized)
 
 # Allow the end user to add a fruit to the list
 add_my_fruit = streamlit.text_input('What fruit would you like to add?', 'jackfruit').lower() # Lower user input for API

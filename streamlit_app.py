@@ -11,10 +11,15 @@ def get_fruityvice_data(this_fruit_choice):
   return fruityvice_normalized
 
 
+def get_fruit_load_list(sf_cnxn):
+  with sf_cnxn.cursor() as my_cur:
+    my_cur.execute("SELECT * FROM fruit_load_list")
+    return my_cur.fetchall()
+
+
 # Import Data
 my_fruit_list = pd.read_csv("https://uni-lab-files.s3.us-west-2.amazonaws.com/dabw/fruit_macros.txt")
 my_fruit_list = my_fruit_list.set_index('Fruit')
-
 
 # Create Menu
 streamlit.title('My Parents New Healthy Diner')
@@ -50,21 +55,20 @@ try:
 except URLError as e:
   streamlit.error()
 
-
 # Allow the end user to add a fruit to the list
 add_my_fruit = streamlit.text_input('What fruit would you like to add?', 'jackfruit').lower() # Lower user input for API
 streamlit.write('Thanks for adding', add_my_fruit)
 
+# Query Snowflake To Get Fruit List
+my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
+
+streamlit.header("The fruit load list contains:")
+my_data_rows = get_fruit_load_list(my_cnx)
+streamlit.dataframe(my_data_rows)
+
 ## Don't run anything past here ##
 streamlit.stop()
 
-# Query Snowflake To Get Fruit List
-my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
-my_cur = my_cnx.cursor()
-my_cur.execute("SELECT * FROM fruit_load_list")
-my_data_rows = my_cur.fetchall()
-streamlit.header("The fruit load list contains:")
-streamlit.dataframe(my_data_rows)
-
 # Insert user's entry into Snowflake Table
 my_cur.execute("INSERT INTO fruit_load_list VALUES ('from streamlit')")
+

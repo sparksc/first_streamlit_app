@@ -44,6 +44,9 @@ streamlit.dataframe(fruityvice_normalized)
 add_my_fruit = streamlit.text_input('What fruit would you like to add?', 'jackfruit').lower() # Lower user input for API
 streamlit.write('Thanks for adding', add_my_fruit)
 
+## Don't run anything past here ##
+streamlit.stop()
+
 # Query Snowflake To Get Fruit List
 my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
 my_cur = my_cnx.cursor()

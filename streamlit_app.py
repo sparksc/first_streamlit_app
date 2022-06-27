@@ -72,7 +72,7 @@ streamlit.dataframe(my_data_rows)
 # Allow the end user to add a fruit to the list
 add_my_fruit = streamlit.text_input('What fruit would you like to add?', 'jackfruit').lower() # Lower user input for API
 if streamlit.button('Add a Fruit to the List'):
-  back_from_function = insert_row_snowflake(sf_cnxn, add_my_fruit)
+  back_from_function = insert_row_snowflake(my_cnx, add_my_fruit)
   streamlit.text(back_from_function)
 
 ## Don't run anything past here ##

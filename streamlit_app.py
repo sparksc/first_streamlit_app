@@ -11,16 +11,21 @@ def get_fruityvice_data(this_fruit_choice):
   return fruityvice_normalized
 
 
-def get_fruit_load_list(sf_cnxn):
-  with sf_cnxn.cursor() as my_cur:
+def get_fruit_load_list():
+  my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
+  with my_cnx.cursor() as my_cur:
     my_cur.execute("SELECT * FROM fruit_load_list")
-    return my_cur.fetchall()
+    all_fruits = my_cur.fetchall()
+    my_cnx.close()
+  return all_fruits
 
 
-def insert_row_snowflake(sf_cnxn, new_fruit):
-  with sf_cnxn.cursor() as my_cur:
+def insert_row_snowflake(new_fruit):
+  my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
+  with my_cnx.cursor() as my_cur:
     # Insert user's entry into Snowflake Table
     my_cur.execute(f"INSERT INTO fruit_load_list VALUES ('{new_fruit}')")
+    my_cnx.close()
     return f'Thanks for adding {new_fruit}'
 
 
@@ -63,16 +68,14 @@ except URLError as e:
   streamlit.error()
 
 # Query Snowflake To Get Fruit List
-my_cnx = snowflake.connector.connect(**streamlit.secrets["snowflake"])
-
 streamlit.header("The fruit load list contains:")
-my_data_rows = get_fruit_load_list(my_cnx)
+my_data_rows = get_fruit_load_list()
 streamlit.dataframe(my_data_rows)
 
 # Allow the end user to add a fruit to the list
 add_my_fruit = streamlit.text_input('What fruit would you like to add?').lower() # Lower user input for API
 if streamlit.button('Add a Fruit to the List'):
-  back_from_function = insert_row_snowflake(my_cnx, add_my_fruit)
+  back_from_function = insert_row_snowflake(add_my_fruit)
   streamlit.text(back_from_function)
 
 ## Don't run anything past here ##
